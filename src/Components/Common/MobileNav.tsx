@@ -2,19 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { RxCross1, RxHamburgerMenu } from "react-icons/rx";
 
 const MobileNav = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setToken(localStorage.getItem("token"));
-    }
-  }, []);
+  const [isReady, setIsReady] = useState(false); // avoid flicker on first paint
+  const pathname = usePathname();
 
   const router = useRouter();
 
@@ -23,6 +19,66 @@ const MobileNav = () => {
     { label: "Task", link: "/tasks" },
   ];
 
+  // 1) Read token on mount and on route change (helps after redirects)
+  useEffect(() => {
+    try {
+      const t =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      setToken(t);
+    } catch {
+      setToken(null);
+    } finally {
+      setIsReady(true);
+    }
+  }, [pathname]); // re-check on route change
+
+  // 2) Listen for cross-tab updates (fires only in *other* tabs)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "token") {
+        setToken(e.newValue);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // 3) Patch Storage methods so updates in the *same tab* are detected instantly
+  useEffect(() => {
+    const originalSetItem = Storage.prototype.setItem;
+    const originalRemoveItem = Storage.prototype.removeItem;
+    const originalClear = Storage.prototype.clear;
+
+    Storage.prototype.setItem = function (key: string, value: string) {
+      originalSetItem.apply(this, [key, value]);
+      if (key === "token") setToken(value || null);
+    };
+
+    Storage.prototype.removeItem = function (key: string) {
+      originalRemoveItem.apply(this, [key]);
+      if (key === "token") setToken(null);
+    };
+
+    Storage.prototype.clear = function () {
+      originalClear.apply(this);
+      setToken(null);
+    };
+
+    return () => {
+      Storage.prototype.setItem = originalSetItem;
+      Storage.prototype.removeItem = originalRemoveItem;
+      Storage.prototype.clear = originalClear;
+    };
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    } catch {}
+    setToken(null);
+    router.push("/login");
+  };
   return (
     <div className="relative ">
       {/* Sidebar */}
@@ -68,9 +124,7 @@ const MobileNav = () => {
                 <button
                   className="bg-teal-700 text-white px-4 py-2 rounded-lg text-xl my-auto"
                   onClick={() => {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                    router.push("/login"); // Redirect to login page
+                    handleLogout();
                     setIsSidebarOpen(false);
                   }}
                 >
