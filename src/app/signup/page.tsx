@@ -1,15 +1,51 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Image from "next/image";
 import { useState } from "react";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function SignupPage() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: async (data: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      const res = await axios.post(
+         `${process.env.NEXT_PUBLIC_API_BASE_URL}/user/user-registration`,
+        // "https://enzee-task-management-system-server.vercel.app/api/v1/user/user-registration",
+        data
+      );
+      return res.data;
+    },
+    onSuccess: (data) => {
+      setError("");
+      setMessage(data?.message || "Signup successful 🎉");
+      toast.success(data?.message || "Signup successful 🎉");
+      console.log("User registered:", data);
+    },
+    onError: (error: any) => {
+      console.error(error);
+      setMessage("");
+      setError(error.response?.data?.errorMessage || "Signup failed ❌");
+      toast.error(error.response?.data?.errorMessage || "Signup failed ❌");
+    },
+  });
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Signup: ${email}`);
+    setError("");
+    setMessage("");
+    mutation.mutate({ name: fullName, email, password });
   };
 
   return (
@@ -24,6 +60,7 @@ export default function SignupPage() {
           Create Your Account
         </h2>
         <form onSubmit={handleSignup} className="space-y-5">
+          {/* Full Name */}
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Full Name
@@ -34,9 +71,14 @@ export default function SignupPage() {
                 type="text"
                 className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 placeholder="John Doe"
+                value={fullName}
+                required
+                onChange={(e) => setFullName(e.target.value)}
               />
             </div>
           </div>
+
+          {/* Email */}
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Email
@@ -48,10 +90,13 @@ export default function SignupPage() {
                 className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 placeholder="you@example.com"
                 value={email}
+                required
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
+
+          {/* Password */}
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-700">
               Password
@@ -63,17 +108,34 @@ export default function SignupPage() {
                 className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-teal-500 focus:outline-none"
                 placeholder="••••••••"
                 value={password}
+                required
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
+
+          {/* Inline Error / Success */}
+          {error && (
+            <p className="text-red-600 text-sm bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
+              {error}
+            </p>
+          )}
+          {message && (
+            <p className="text-green-600 text-sm bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+              {message}
+            </p>
+          )}
+
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg bg-teal-600 text-white font-medium shadow hover:bg-teal-700 transition"
+            disabled={mutation.isPending}
+            className="w-full cursor-pointer py-2 rounded-lg bg-teal-600 text-white font-medium shadow hover:bg-teal-700 transition disabled:opacity-50"
           >
-            Sign Up
+            {mutation.isPending ? "Signing up..." : "Sign Up"}
           </button>
         </form>
+
         <p className="text-center mt-6 text-gray-600 text-sm">
           Already have an account?{" "}
           <a
