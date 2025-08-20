@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌐 Task Management System – Frontend
 
-## Getting Started
+This is the **frontend application** for the **Task Management System**.  
+It is built with **Next.js**, **TypeScript**, and **TailwindCSS**.  
+The frontend communicates with the backend (Express.js + MongoDB) via REST APIs to provide a smooth user experience.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Frontend Live Link
+```
+https://enzee-task-management-frontend.vercel.app
+```
+### Backend Live Link
+```
+https://enzee-task-management-system-server.onrender.com
+```
+### Backend GitHub Link
+```
+https://github.com/rakib38324/Enzee-Task-Management-System-Server
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🔐 **Authentication**
+  - Signup  
+  - Login  
+  - Email Verification  
+  - Forgot & Reset Password  
 
-## Learn More
+- 📝 **Task Management**
+  - Create Task  
+  - Update Task  
+  - Update Task Status (e.g., Pending → Completed)  
+  - Delete Task  
 
-To learn more about Next.js, take a look at the following resources:
+- 🎨 **UI/UX**
+  - Responsive and mobile-friendly design  
+  - Styled with **TailwindCSS**  
+  - Protected routes for authenticated users  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ⚙️ Getting Started
 
-## Deploy on Vercel
+### 1. Clone the repository
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+git clone https://github.com/your-username/task-management-system.git
+cd Enzee-Task-Management-System-Server
+```
+
+### 2. Install resources
+```bash
+npm install
+```
+
+### 3. .env file structure
+```
+NEXT_PUBLIC_API_BASE_URL=backend_live_link/api/v1
+
+```
+
+ ### 4. Start in development
+```bash
+npm run dev
+```
+
+ ### 6. Start in production
+```bash
+npm run build
+npm start
+```
+
+# 🛠️ Design Choices
+
+Email Verification System: Implemented to ensure only valid users can access the platform and to enhance account security.
+
+JWT Authentication: Chosen for stateless, scalable authentication. Tokens are generated for access and refresh sessions.
+
+Express + TypeScript: Provides type safety and a better developer experience.
+
+MongoDB (Mongoose): Flexible document-based database for storing user and task data.
+
+Separation of Concerns: Authentication, middleware, and task management are modularized for a clean architecture.
+
+# ⚖️ Trade-offs & Assumptions
+
+JWT over Sessions:
+I chose JWT tokens for security and scalability. They allow stateless authentication, but the trade-off is that token invalidation is harder compared to session-based auth.
+
+Access & Refresh Tokens:
+I used short-lived access tokens for requests and long-lived refresh tokens for renewing sessions, balancing security vs. usability.
+
+Email Provider Assumption:
+Assumed that SMTP credentials (e.g., Gmail, SendGrid) would be available for email verification and password reset flows.
+
+# ⚡ Challenges
+
+Email Sending Issue on Vercel
+When deploying the backend on Vercel, the email service did not work properly because serverless functions restrict long-running connections (like SMTP).
+
+✅ Solution: I deployed the backend on Render, which supports persistent connections and SMTP, and kept the frontend on Vercel. This solved the email verification & password reset issue.
+
+CORS Configurations
+Had to explicitly configure CORS in Express to allow communication between frontend (Next.js) and backend (Render).
+
+# ✅ Need Future Improvements
+
+Add task categories & priority levels.
+
+Add real-time updates with WebSockets (Socket.IO).
+
+Implement unit & integration tests with Jest.
+
+Deploy frontend (Next.js) + backend (Express) together in Docker for easier scaling.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
