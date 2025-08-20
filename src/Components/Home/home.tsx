@@ -34,6 +34,7 @@ export default function HomeComponent() {
 
   return (
     <div className=" bg-gray-50">
+    
       {/* Hero */}
       <section className="relative font-serif bg-gradient-to-br from-gray-100 to-gray-200 py-16 md:py-28 px-6 text-center">
         <div className="max-w-4xl mx-auto">

@@ -14,6 +14,7 @@ const NotFound = () => {
               className="w-full h-full"
               width={1200}
               height={1200}
+              unoptimized
               src={"/not found.png"}
               alt="Logo"
             />

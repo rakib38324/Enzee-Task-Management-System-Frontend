@@ -5,6 +5,7 @@ import Navbar from "@/Components/Common/Navbar";
 import Footer from "@/Components/Common/Footer";
 import { Toaster } from "react-hot-toast";
 import Providers from "./utilities/Provider";
+import ProtectedRoute from "@/Components/ProtectedRouter/ProtectedRouter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,14 +32,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 text-gray-900 flex flex-col min-h-screen`}
       >
-        <Navbar />
-        <Providers>
-          <main className="flex-grow container mx-auto px-4 py-6">
-            {children}
-            <Toaster />
-          </main>
-        </Providers>
-        <Footer />
+        <ProtectedRoute>
+          <Navbar />
+          <Providers>
+            <main className="flex-grow container mx-auto px-4 py-6">
+              {children}
+              <Toaster />
+            </main>
+          </Providers>
+          <Footer />
+        </ProtectedRoute>
       </body>
     </html>
   );

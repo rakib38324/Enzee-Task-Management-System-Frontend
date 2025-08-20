@@ -35,14 +35,13 @@ const EmailVerificationClient = () => {
     onSuccess: (res) => {
       setMessage(res.data.message || "Email verified successfully!");
       setError("");
-      console.log("Email verified successfully:", res.data);
       toast.success(res.data.message, { id: "verify-email" });
       router.push("/login");
     },
     onError: (err: any) => {
       setMessage("");
       setError(err.response?.data?.errorMessage || "Email verification failed ❌");
-      console.error("Email verification failed:", err);
+      // console.error("Email verification failed:", err);
       const errorMessage =
         err.response?.data?.errorMessage ||
         "Oops! Something went wrong, please try again later.";
@@ -85,7 +84,7 @@ const EmailVerificationClient = () => {
   // --- Only call verify API ONCE ---
   useEffect(() => {
     if (email && token && !verificationTried) {
-      console.log("Verifying email...");
+      // console.log("Verifying email...");
       verifyEmailMutation.mutate();
       setVerificationTried(true); // mark as attempted
     }

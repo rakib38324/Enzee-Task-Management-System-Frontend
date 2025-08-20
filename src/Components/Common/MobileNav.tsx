@@ -2,12 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { FaCross } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { RxCross1, RxHamburgerMenu } from "react-icons/rx";
 
 const MobileNav = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setToken(localStorage.getItem("token"));
+    }
+  }, []);
+
+  const router = useRouter();
 
   const navbar = [
     { label: "Home", link: "/" },
@@ -30,7 +39,11 @@ const MobileNav = () => {
         </button>
 
         {/* Logo */}
-        <Link onClick={() => setIsSidebarOpen(false)} href="/" className="absolute left-1/2 top-7 flex items-center">
+        <Link
+          onClick={() => setIsSidebarOpen(false)}
+          href="/"
+          className="absolute left-1/2 top-7 flex items-center"
+        >
           <Image src={"/logo.png"} alt="Logo" width={200} height={200} />
         </Link>
 
@@ -49,23 +62,41 @@ const MobileNav = () => {
             ))}
           </ul>
 
-          <div className="flex justify-end items-center gap-4 z-10">
-            <div className="flex mx-3 gap-3">
-              <Link
-                href={"/signup"}
-                onClick={() => setIsSidebarOpen(false)}
-                className=" text-teal-700  font-semibold hover:text-teal-800 text-2xl my-auto"
-              >
-                Get Started
-              </Link>
-              <Link
-                href={"/login"}
-                onClick={() => setIsSidebarOpen(false)}
-                className="bg-teal-700 font-serif text-white px-4 py-2 rounded-lg text-xl my-auto"
-              >
-                Login
-              </Link>
-            </div>
+          <div>
+            {token ? (
+              <div className="mt-5 flex justify-center items-center gap-4 z-10">
+                <button
+                  className="bg-teal-700 text-white px-4 py-2 rounded-lg text-xl my-auto"
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    router.push("/login"); // Redirect to login page
+                    setIsSidebarOpen(false);
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-end items-center gap-4 z-10">
+                <div className="flex mx-3 gap-3">
+                  <Link
+                    href={"/signup"}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className=" text-teal-700  font-semibold hover:text-teal-800 text-2xl my-auto"
+                  >
+                    Get Started
+                  </Link>
+                  <Link
+                    href={"/login"}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="bg-teal-700 font-serif text-white px-4 py-2 rounded-lg text-xl my-auto"
+                  >
+                    Login
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -75,7 +106,9 @@ const MobileNav = () => {
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         className="pr-2 text-black text-[25px] rounded-lg focus:outline-none"
       >
-        {!isSidebarOpen && <RxHamburgerMenu className="text-4xl text-teal-700" />}
+        {!isSidebarOpen && (
+          <RxHamburgerMenu className="text-4xl text-teal-700" />
+        )}
       </button>
 
       {/* Overlay */}
